@@ -1,0 +1,2 @@
+# Kali-Linux-Inspired PowerShell Prompt
+This is a PowerShell console prompt inspired by Kali Linux's colorful, multiline ZSH terminal [prompt](https://www.kali.org/blog/kali-linux-2020-4-release/images/bash.png).
