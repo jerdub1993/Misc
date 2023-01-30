@@ -104,40 +104,15 @@ function New-CmdletDocumentation {
                 $OutArray += "| AcceptPipelineInput | {0} |" -f [System.Convert]::ToBoolean($param.pipelineInput.split()[0])
             }
             $OutArray += "## Inputs`n"
-            $inputArray = $Help.Parameters.parameter | Where-Object {
-                $_.type.name -ne [System.Management.Automation.SwitchParameter].FullName
-            } | Select-Object `
-                Name, `
-                @{
-                    N = "Type"
-                    E = { $_.type.name }
-                }, `
-                @{
-                    N = "URI"
-                    E = { $_.type.uri }
-                }, `
-                @{
-                    N = "PipelineInput"
-                    E = {
-                        try {
-                            [System.Convert]::ToBoolean($_.pipelineInput)
-                        } catch {
-                            $true
-                        }
-                    }
+            $inputText = foreach ($inputType in $Help.inputTypes.inputType){
+                $Description = $inputType.description
+                foreach ($indvType in $inputType.type.name.split("`n").split(",").trim()){
+                    "#### [**{0}**]()`n" -f $indvType
+                    $Description
                 }
-            $uniqueInputs = $inputArray.Type | Select-Object -Unique | Sort-Object
-            if ($uniqueInputs.Count -gt 0){
-                foreach ($type in $uniqueInputs){
-                    $options = $inputArray | Where-Object -Property Type -eq $type
-                    $URI = $options.URI | Where-Object {![string]::IsNullOrEmpty($_.Trim())} | Select-Object -First 1
-                    $OutArray += "#### [**{0}**]({1})`n" -f $type, $URI
-                    $OutArray += if ($LoremIpsum){
-                        Get-LoremIpsum -Sentences 1
-                    } else {
-                        ""
-                    }
-                }
+            }
+            $OutArray += if ($inputText.Count -gt 0){
+                $inputText
             } else {
                 $OutArray += "#### **None**`n"
             }
