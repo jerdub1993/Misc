@@ -4,3 +4,6 @@
 [submodule "CmdletDocumentation"]
 	path = CmdletDocumentation
 	url = https://github.com/jerdub1993/CmdletDocumentation
+[submodule "KaliPrompt"]
+	path = KaliPrompt
+	url = https://github.com/jerdub1993/KaliPrompt
