@@ -106,7 +106,7 @@ function New-CmdletDocumentation {
             $OutArray += "## Inputs`n"
             $inputText = foreach ($inputType in $Help.inputTypes.inputType){
                 $Description = $inputType.description
-                foreach ($indvType in $inputType.type.name.split("`n").split(",").trim()){
+                foreach ($indvType in ($inputType.type.name.split("`n").split(",").trim() | Where-Object {![string]::IsNullOrEmpty($_.trim())})){
                     "#### [**{0}**]()`n" -f $indvType
                     $Description
                 }
