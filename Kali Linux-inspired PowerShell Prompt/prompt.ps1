@@ -20,9 +20,9 @@ function prompt {
 
     # If current directory is a Git repository, add "@reponame" to the prompt
     $RepoString = try {
-        $RepoName = (Get-Item (git rev-parse --show-toplevel)).BaseName
+        $TopLevel = git rev-parse --show-toplevel
         if (!$LASTEXITCODE){
-            "{0}{1}@{0}{2}{3}" -f $ESC, $AccentColor, $RepoColor, $RepoName
+            "{0}{1}@{0}{2}{3}" -f $ESC, $env:AccentColor, $env:RepoColor, (Get-Item $TopLevel).Basename
         }
     } catch {
         ""
