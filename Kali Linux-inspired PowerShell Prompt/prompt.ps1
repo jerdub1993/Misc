@@ -10,7 +10,7 @@ function prompt {
     $LineColor = "[92m" # Bright Green
     $BaseColor = "[94m" # Bright Blue
     $AccentColor = "[0m" # Uncolored
-    $PWDColor = "[93m" # Bright Yellow
+    $PWDColor = $AccentColor
     $RepoColor = $BaseColor
     $ESC = [char]27
 
@@ -25,10 +25,9 @@ function prompt {
     }
 
     # If current directory is the user's profile directory, path will be simply "~"; otherwise, it will be the PWD
-    $PWDPath = if ($pwd.Path -eq $env:USERPROFILE){
-        "~"
-    } else {
-        $pwd.Path
+    $PWDPath = switch ($pwd.Path){
+        $env:USERPROFILE {"~"}
+        Default {$_}
     }
     $String = "`n{0}{1}┌──{0}{2}({0}{3}{5}{7}{0}{2})-[{0}{4}{6}{0}{2}]`n{0}{1}└─{0}{3}`${0}{2} " -f $ESC, $LineColor, $AccentColor, $BaseColor, $PWDColor, '{0}', '{1}', $RepoString
     $String -f $env:USERNAME, $PWDPath
