@@ -5,12 +5,16 @@ function prompt {
         ┌──(<username><@repository>)-[<Present Working Directory>]
         └─$ 
     #>
+
+    # Full color list: https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#text-formatting
     $LineColor = "[92m" # Bright Green
     $BaseColor = "[94m" # Bright Blue
     $AccentColor = "[0m" # Uncolored
     $PWDColor = "[93m" # Bright Yellow
     $RepoColor = $BaseColor
     $ESC = [char]27
+
+    # If current directory is a Git repository, add "@reponame" to the prompt
     $RepoString = try {
         git status *>$null
         if (!$LASTEXITCODE){
@@ -19,11 +23,13 @@ function prompt {
     } catch {
         ""
     }
-    $PWDPath = if ($pwd.Path -eq $USERPROFILE){
+
+    # If current directory is the user's profile directory, path will be simply "~"; otherwise, it will be the PWD
+    $PWDPath = if ($pwd.Path -eq $env:USERPROFILE){
         "~"
     } else {
         $pwd.Path
     }
     $String = "`n{0}{1}┌──{0}{2}({0}{3}{5}{7}{0}{2})-[{0}{4}{6}{0}{2}]`n{0}{1}└─{0}{3}`${0}{2} " -f $ESC, $LineColor, $AccentColor, $BaseColor, $PWDColor, '{0}', '{1}', $RepoString
-    $String -f $USERNAME, $PWDPath
+    $String -f $env:USERNAME, $PWDPath
 }
