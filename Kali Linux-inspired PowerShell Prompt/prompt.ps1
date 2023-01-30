@@ -5,6 +5,7 @@ function prompt {
         ┌──(<username><@repository>)-[<Present Working Directory>]
         └─$ 
     #>
+    # Unicode char decimals: https://www.ssec.wisc.edu/~tomw/java/unicode.html
     $ESC             = [char]27
     $RtAngleDown     = [char]9484
     $RtAngleUp       = [char]9492
