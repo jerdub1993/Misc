@@ -10,7 +10,8 @@ function New-CmdletDocumentation {
             Mandatory = $true,
             ParameterSetName = 'Name'
         )]    
-        [string[]]$Name
+        [string[]]$Name,
+        [switch]$LoremIpsum
     )
     Begin {
         foreach ($Obj in $InputObject){
@@ -56,7 +57,11 @@ function New-CmdletDocumentation {
         foreach ($Obj in $InputObject){
             $OutArray = @()
             $OutArray += "# {0}`n" -f $Obj.Name
-            $OutArray += Get-LoremIpsum -Sentences 1
+            $OutArray += if ($LoremIpsum){
+                Get-LoremIpsum -Sentences 1
+            } else {
+                ""
+            }
             $OutArray += "## Syntax`n"
             $Syntax = Get-CommandSyntax -Command $Obj
             $spaces = ' ' * 4
@@ -68,7 +73,11 @@ function New-CmdletDocumentation {
                 $OutArray += ''
             }
             $OutArray += "## Description`n"
-            $OutArray += Get-LoremIpsum -Paragraphs 2
+            $OutArray += if ($LoremIpsum){
+                Get-LoremIpsum -Paragraphs 2
+            } else {
+                ""
+            }
             $OutArray += "## Examples`n"
             $Help = Get-Help $Obj.Name
             $exCount = 1
@@ -83,7 +92,7 @@ function New-CmdletDocumentation {
             $OutArray += "## Parameters`n"
             foreach ($param in $Help.Parameters.parameter){
                 $OutArray += "#### **`-{0}`**`n" -f $param.name
-                $OutArray += Get-LoremIpsum -Sentences 1
+                $OutArray += $param.Description
                 $OutArray += ''
                 $OutArray += "| Attribute | Value |"
                 $OutArray += "| --- | --- |"
@@ -92,23 +101,72 @@ function New-CmdletDocumentation {
                 $OutArray += "| AcceptPipelineInput | {0} |" -f [System.Convert]::ToBoolean($param.pipelineInput.split()[0])
             }
             $OutArray += "## Inputs`n"
-            foreach ($input in ($Help.inputTypes.inputType.type.name.split("`n").split(",").trim().trimEnd('[]') | Where-Object {![string]::IsNullOrEmpty($_.Trim())})){
-                $OutArray += "#### [**{0}**]()`n" -f $input
-                $OutArray += Get-LoremIpsum -Sentences 1
+            $inputArray = $Help.Parameters.parameter | Where-Object {
+                $_.type.name -ne [System.Management.Automation.SwitchParameter].FullName
+            } | Select-Object `
+                Name, `
+                @{
+                    N = "Type"
+                    E = { $_.type.name }
+                }, `
+                @{
+                    N = "URI"
+                    E = { $_.type.uri }
+                }, `
+                @{
+                    N = "PipelineInput"
+                    E = {
+                        try {
+                            [System.Convert]::ToBoolean($_.pipelineInput)
+                        } catch {
+                            $true
+                        }
+                    }
+                }
+            $inputsOut = @{}
+            $uniqueInputs = $inputArray.Type | Select-Object -Unique | Sort-Object
+            if ($uniqueInputs.Count -gt 0){
+                foreach ($type in $uniqueInputs){
+                    $options = $inputArray | Where-Object -Property Type -eq $type
+                    $URI = $options.URI | Where-Object {![string]::IsNullOrEmpty($_.Trim())} | Select-Object -First 1
+                    $PipelineInput = $options.PipelineInput -contains $true
+                    $OutArray += "#### [**{0}**]({1})`n" -f $type, $URI
+                    $OutArray += if ($LoremIpsum){
+                        Get-LoremIpsum -Sentences 1
+                    } else {
+                        ""
+                    }
+                }
+            } else {
+                $OutArray += "#### **None**`n"
             }
             $OutArray += "## Outputs"
-            if (!$Obj.OutputType){
-                $OutArray += "#### **None**`n"
-            } else {
-                foreach ($output in $Obj.OutputType.type.name){
-                    $OutArray += "#### [**{0}**]()`n" -f $output
-                    $OutArray += Get-LoremIpsum -Sentences 1
+            $returnValues = foreach ($returnValue in $Help.returnValues.returnValue){
+                "#### [**{0}**]()`n" -f $returnValue.type.name
+                if ($returnValue.Description){
+                    $returnValue.Description
                 }
             }
+            $OutArray += if ($returnValues.Count -eq 0){
+                "#### **None**`n"
+            } else {
+                $returnValues
+            }
             $OutArray += "## Notes`n"
-            $OutArray += Get-LoremIpsum -Paragraphs 3
+            $OutArray += if ($LoremIpsum){
+                Get-LoremIpsum -Paragraphs 3
+            } else {
+                ""
+            }
             $OutArray += "## Related Links`n"
-            $OutArray += "- [Link 1](url.com)"
+            $URIList = $help.relatedLinks.navigationLink | Where-Object { ![string]::IsNullOrEmpty($_.uri.trim()) }
+            if ($URIList.Count -gt 0){
+                foreach ($URI in $URIList){
+                    $OutArray += "- [{0}]({1})" -f $URI.linkText, $URI.uri
+                }
+            } else {
+                $OutArray += "- [Link 1]()"
+            }
             return $OutArray
         }
     }
