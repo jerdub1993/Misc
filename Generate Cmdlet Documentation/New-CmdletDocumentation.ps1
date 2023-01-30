@@ -126,13 +126,11 @@ function New-CmdletDocumentation {
                         }
                     }
                 }
-            $inputsOut = @{}
             $uniqueInputs = $inputArray.Type | Select-Object -Unique | Sort-Object
             if ($uniqueInputs.Count -gt 0){
                 foreach ($type in $uniqueInputs){
                     $options = $inputArray | Where-Object -Property Type -eq $type
                     $URI = $options.URI | Where-Object {![string]::IsNullOrEmpty($_.Trim())} | Select-Object -First 1
-                    $PipelineInput = $options.PipelineInput -contains $true
                     $OutArray += "#### [**{0}**]({1})`n" -f $type, $URI
                     $OutArray += if ($LoremIpsum){
                         Get-LoremIpsum -Sentences 1
