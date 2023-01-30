@@ -4,7 +4,7 @@ function New-CmdletDocumentation {
             Mandatory = $true,
             ParameterSetName = 'Cmdlet'
         )]    
-        [System.Management.Automation.CmdletInfo]$Command,
+        [Object]$Command,
         [Parameter(
             Mandatory = $true,
             ParameterSetName = 'Name'
@@ -36,8 +36,8 @@ function New-CmdletDocumentation {
         }
     }
     if ($Name){
-        try {
-            $Command = Get-Command -Name $Name
+        $Command = try {
+            Get-Command -Name $Name
         } catch {
             throw [System.Management.Automation.CommandNotFoundException] "Unable to find command '$Name'."
             exit 1
