@@ -55,6 +55,7 @@ function New-CmdletDocumentation {
     }
     Process {
         foreach ($Obj in $InputObject){
+            $Help = Get-Help $Obj.Name
             $OutArray = @()
             $OutArray += "# {0}`n" -f $Obj.Name
             $OutArray += if ($LoremIpsum){
@@ -82,7 +83,6 @@ function New-CmdletDocumentation {
                 ""
             }
             $OutArray += "## Examples`n"
-            $Help = Get-Help $Obj.Name
             $exCount = 1
             foreach ($example in $Help.examples.example){
                 $OutArray += "### {0}`n" -f $example.title.trim('-').trim() -replace 'Example \d+', ('Example {0}' -f $exCount)
