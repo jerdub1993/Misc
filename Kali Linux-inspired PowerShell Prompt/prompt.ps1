@@ -5,14 +5,14 @@ function prompt {
         ┌──(<username><@repository>)-[<Present Working Directory>]
         └─$ 
     #>
+    $ESC = [char]27
 
     # Full color list: https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#text-formatting
-    $LineColor = "[92m" # Bright Green
-    $BaseColor = "[94m" # Bright Blue
-    $AccentColor = "[0m" # Uncolored
-    $PWDColor = $AccentColor
-    $RepoColor = $BaseColor
-    $ESC = [char]27
+    $LineColor   = "[92m"   # Bright Green
+    $BaseColor   = "[94m"   # Bright Blue
+    $AccentColor = "[0m"    # Uncolored
+    $PWDColor    = $AccentColor
+    $RepoColor   = $BaseColor
 
     # If current directory is a Git repository, add "@reponame" to the prompt
     $RepoString = try {
