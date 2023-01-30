@@ -28,11 +28,9 @@ function prompt {
         ""
     }
 
-    # If current directory is the user's profile directory, path will be simply "~"; otherwise, it will be the PWD
-    $PWDPath = switch ($pwd.Path){
-        $env:USERPROFILE {"~"}
-        Default {$_}
-    }
+    # Replace the user's profile directory in path with "~"
+    $PWDPath = $pwd.path -replace $env:USERPROFILE.replace('\','\\'), "~"
+    
     $String = "`n{0}{1}{6}{8}{8}{0}{5}({0}{3}{9}{11}{0}{5}){0}{2}-{0}{5}[{0}{4}{10}{0}{5}]`n{0}{1}{7}{8}{0}{3}`${0}{2} " -f $ESC, $LineColor, $AccentColor, $BaseColor, $PWDColor, $BracketColor, $RtAngleDown, $RtAngleUp, $Dash, '{0}', '{1}', $RepoString
     $String -f $env:USERNAME, $PWDPath
 }
