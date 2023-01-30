@@ -1,0 +1,3 @@
+[submodule "FinViz"]
+	path = FinViz
+	url = https://github.com/jerdub1993/FinViz
