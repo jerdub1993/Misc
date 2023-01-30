@@ -73,7 +73,10 @@ function New-CmdletDocumentation {
                 $OutArray += ''
             }
             $OutArray += "## Description`n"
-            $OutArray += if ($LoremIpsum){
+            
+            $OutArray += if ($Help.description){
+                $Help.description
+            } elseif ($LoremIpsum){
                 Get-LoremIpsum -Paragraphs 2
             } else {
                 ""
