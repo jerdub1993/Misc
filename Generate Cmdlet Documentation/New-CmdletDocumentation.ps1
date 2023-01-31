@@ -46,7 +46,7 @@ function New-CmdletDocumentation {
                         . $ScriptPath | Out-Null
                         Get-Command -Name $indvCommand -ErrorAction Stop | Out-Null
                     } catch {
-                        throw [System.Management.Automation.CommandNotFoundException] "Unable to find cmdlet '$InputObject'. Make sure the '$($Mod.Key)' module is imported."
+                        throw [System.Management.Automation.CommandNotFoundException] "Unable to find cmdlet '$indvCommand'. Make sure the '$($Mod.Key)' module is imported."
                         exit 1
                     }
                 }
@@ -135,7 +135,7 @@ function New-CmdletDocumentation {
                 ""
             }
             $OutArray += "## Related Links`n"
-            $URIList = $help.relatedLinks.navigationLink | Where-Object { ![string]::IsNullOrEmpty($_.uri.trim()) }
+            $URIList = $help.relatedLinks.navigationLink | Where-Object { $_.uri -and ![string]::IsNullOrEmpty($_.uri.trim()) }
             if ($URIList.Count -gt 0){
                 foreach ($URI in $URIList){
                     $OutArray += "- [{0}]({1})" -f $URI.linkText, $URI.uri
