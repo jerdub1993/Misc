@@ -37,7 +37,7 @@ function New-CmdletDocumentation {
             )
         }
         foreach ($Mod in $Required_Modules.GetEnumerator()){
-            foreach ($indvCommand in $Mod.Value){
+            foreach ($indvCommand in ($Mod.Value | Where-Object {![string]::IsNullOrEmpty($_.trim())})){
                 try {
                     Get-Command -Name $indvCommand -ErrorAction Stop | Out-Null
                 } catch {
