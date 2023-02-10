@@ -177,9 +177,9 @@ function New-CmdletDocumentation {
             #endregion Parameters
 
             #region Inputs
-            $OutArray += "## Inputs`n"
+            $OutArray += "`n## Inputs"
             $inputText = foreach ($inputType in ($Help.parameters.parameter.type.name | Select-Object -Unique | Sort-Object)){
-                "#### [**{0}**]()`n" -f $inputType
+                "`n#### [**{0}**]()" -f $inputType
                 if ($LoremIpsum) {
                     Get-LoremIpsum -Sentences 1
                 }
@@ -187,14 +187,14 @@ function New-CmdletDocumentation {
             $OutArray += if ($inputText.Count -gt 0){
                 $inputText
             } else {
-                $OutArray += "#### **None**`n"
+                $OutArray += "`n#### **None**`n"
             }
             #endregion Inputs
 
             #region Outputs
-            $OutArray += "## Outputs"
+            $OutArray += "`n## Outputs"
             $returnValues = foreach ($returnValue in $Help.returnValues.returnValue){
-                "#### [**{0}**]()`n" -f $returnValue.type.name.Trim()
+                "`n#### [**{0}**]()" -f $returnValue.type.name.Trim()
                 if ($returnValue.Description){
                     $returnValue.Description
                 } elseif ($LoremIpsum){
@@ -202,14 +202,14 @@ function New-CmdletDocumentation {
                 }
             }
             $OutArray += if ($returnValues.Count -eq 0){
-                "#### **None**`n"
+                "`n#### **None**"
             } else {
                 $returnValues
             }
             #endregion Outputs
 
             #region Notes
-            $OutArray += "## Notes`n"
+            $OutArray += "`n## Notes"
             $aliasList = Get-Alias -Definition $Help.Name -ErrorAction SilentlyContinue
             $OutArray += if ($aliasList) {
                 'PowerShell includes the following aliases for `{0}`:' -f $Help.Name
@@ -222,7 +222,7 @@ function New-CmdletDocumentation {
             #endregion Notes
 
             #region Related Links
-            $OutArray += "## Related Links`n"
+            $OutArray += "`n## Related Links"
             $LinkPattern = '- [{0}]({1})'
             $Links = $help.relatedLinks.navigationLink
             if ($Links){
@@ -254,7 +254,12 @@ function New-CmdletDocumentation {
                     }
                 }
             } else {
-                $OutArray += "- [$(Get-LoremIpsum -Words 2)]()"
+                $linkText = if ($LoremIpsum){
+                    Get-LoremIpsum -Words 2
+                } else {
+                    "Link 1"
+                }
+                $OutArray += "- [{0}]()" -f $linkText
             }
             #endregion Related Links
 
