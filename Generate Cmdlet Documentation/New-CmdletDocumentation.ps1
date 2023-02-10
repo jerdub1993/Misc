@@ -39,9 +39,9 @@ function New-CmdletDocumentation {
         }
         switch ($PSCmdlet.ParameterSetName){
             InputObject {
-                foreach ($Obj in $InputObject){
-                    if ($Obj.GetType() -notin [System.Management.Automation.CmdletInfo],[System.Management.Automation.FunctionInfo]){
-                        throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'InputObject'. Cannot convert the `"$Obj`" value of type `"$($Obj.GetType().Name)`" to type `"CmdletInfo`" or `"FunctionInfo`"."
+                foreach ($inObj in $InputObject){
+                    if ($inObj.GetType() -notin [System.Management.Automation.CmdletInfo],[System.Management.Automation.FunctionInfo]){
+                        throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'InputObject'. Cannot convert the `"$inObj`" value of type `"$($inObj.GetType().Name)`" to type `"CmdletInfo`" or `"FunctionInfo`"."
                         exit 1
                     }
                 }
@@ -89,8 +89,8 @@ function New-CmdletDocumentation {
         }
     }
     Process {
-        foreach ($Obj in $InputObject){
-            $Help = Get-Help $Obj.Name
+        foreach ($inObj in $InputObject){
+            $Help = Get-Help $inObj
             $OutArray = @()
 
             #region Cmdlet Name
@@ -108,7 +108,7 @@ function New-CmdletDocumentation {
             #region Syntax
             $OutArray += "`n## Syntax"
             $spaces = ' ' * 4
-            $Syntax = Get-CommandSyntax -Command $Obj
+            $Syntax = Get-CommandSyntax -Command $inObj
             foreach ($set in $Syntax.ParameterSets){
                 $OutArray += '```PowerShell'
                 $OutArray += $Help.Name
