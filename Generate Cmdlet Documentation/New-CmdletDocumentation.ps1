@@ -169,7 +169,7 @@ function New-CmdletDocumentation {
                     $param.type.name
                 }
                 $OutArray += $tablePattern -f "Type", $TypeName
-                if ($param.aliases -ne 'None'){
+                if ($param.aliases -notmatch 'None|'){
                     $OutArray += $tablePattern -f "Aliases", $param.aliases
                 }
                 $OutArray += $tablePattern -f "Position", (Get-Culture).TextInfo.ToTitleCase($param.position)
@@ -189,7 +189,7 @@ function New-CmdletDocumentation {
             $OutArray += "`n## Inputs"
             $helpInputTypes = $Help.inputTypes.inputType.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_) } 
             $parameterInputTypes = $Help.parameters.parameter.type.name.TrimEnd('[]') | Select-Object -Unique | Sort-Object
-            $OutArray += if ($helpInputTypes -match 'None' -and $parameterInputTypes.Count -gt 0) {
+            $OutArray += if (([string]::IsNullOrEmpty($helpInputTypes) -or $helpInputTypes -match 'None') -and $parameterInputTypes.Count -gt 0) {
                 foreach ($inputType in $parameterInputTypes){
                     $ErrorActionPreference = 'Stop'
                     try {
@@ -205,7 +205,7 @@ function New-CmdletDocumentation {
                     }
                 }
             } else {
-                if ($helpInputTypes -match 'None'){
+                if ([string]::IsNullOrEmpty($helpInputTypes) -or $helpInputTypes -match 'None'){
                     "`n#### **None**`n"
                 } else {
                     foreach ($helpInput in $helpInputTypes){
@@ -227,7 +227,7 @@ function New-CmdletDocumentation {
                 foreach ($returnValue in $Help.returnValues.returnValue){
                     [type]$type = $returnValue.type.name.Trim().TrimEnd('[]')
                     "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
-                    if ($returnValue.Description){
+                    if ($returnValue.Description.trim()){
                         $returnValue.Description
                     } elseif ($LoremIpsum){
                         Get-LoremIpsum -Sentences 1
