@@ -67,8 +67,8 @@ function New-CmdletDocumentation {
             'Get-LoremIpsum.ps1' = @(
                 'Get-LoremIpsum'
             )
-            'Get-CommandSyntax.ps1' = @(
-                'Get-CommandSyntax'
+            'Get-Syntax.ps1' = @(
+                'Get-Syntax'
             )
         }
         foreach ($Mod in $Required_Modules.GetEnumerator()){
@@ -76,14 +76,8 @@ function New-CmdletDocumentation {
                 try {
                     Get-Command -Name $indvCommand -ErrorAction Stop | Out-Null
                 } catch {
-                    $ScriptPath = "{0}\{1}" -f $pwd.path, $Mod.key
-                    try {
-                        . $ScriptPath | Out-Null
-                        Get-Command -Name $indvCommand -ErrorAction Stop | Out-Null
-                    } catch {
-                        throw [System.Management.Automation.CommandNotFoundException] "Unable to find cmdlet '$indvCommand'. Make sure the '$($Mod.Key)' module is imported."
-                        exit 1
-                    }
+                    throw [System.Management.Automation.CommandNotFoundException] "Unable to find cmdlet '$indvCommand'. Make sure the '$($Mod.Key)' module is imported."
+                    exit 1
                 }
             }
         }
@@ -108,7 +102,7 @@ function New-CmdletDocumentation {
             #region Syntax
             $OutArray += "`n## Syntax"
             $spaces = ' ' * 4
-            $Syntax = Get-CommandSyntax -Command $inObj
+            $Syntax = Get-Syntax -Command $inObj
             foreach ($set in $Syntax.ParameterSets){
                 $OutArray += '```PowerShell'
                 $OutArray += $Help.Name
