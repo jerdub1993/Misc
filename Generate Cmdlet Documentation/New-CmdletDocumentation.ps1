@@ -187,7 +187,7 @@ function New-CmdletDocumentation {
 
             #region Inputs
             $OutArray += "`n## Inputs"
-            $helpInputTypes = $Help.inputTypes.inputType.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_) } 
+            $helpInputTypes = $Help.inputTypes.inputType.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_) } | Sort-Object
             $parameterInputTypes = $Help.parameters.parameter.type.name.TrimEnd('[]') | Select-Object -Unique | Sort-Object
             $OutArray += if (([string]::IsNullOrEmpty($helpInputTypes) -or $helpInputTypes -match 'None') -and $parameterInputTypes.Count -gt 0) {
                 foreach ($inputType in $parameterInputTypes){
@@ -221,15 +221,13 @@ function New-CmdletDocumentation {
 
             #region Outputs
             $OutArray += "`n## Outputs"
-            $OutArray += if ($Help.returnValues.returnValue.type.name -eq 'None') {
+            $OutArray += if ([string]::IsNullOrEmpty($Help.returnValues) -or $Help.returnValues.returnValue.type.name -match 'None') {
                 "`n#### **None**"
             } else {
-                foreach ($returnValue in $Help.returnValues.returnValue){
-                    [type]$type = $returnValue.type.name.Trim().TrimEnd('[]')
+                foreach ($returnValue in ($Help.returnValues.returnValue.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_.Trim()) } | Sort-Object)){
+                    [type]$type = $returnValue.Trim().TrimEnd('[]')
                     "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
-                    if ($returnValue.Description.trim()){
-                        $returnValue.Description
-                    } elseif ($LoremIpsum){
+                    if ($LoremIpsum){
                         Get-LoremIpsum -Sentences 1
                     }
                 }
