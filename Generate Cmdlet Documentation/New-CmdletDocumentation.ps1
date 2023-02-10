@@ -19,6 +19,12 @@ function New-CmdletDocumentation {
         [switch]$LoremIpsum
     )
     Begin {
+        function Get-TypeUri {
+            param (
+                [System.Reflection.TypeInfo]$Type
+            )
+            return "https://learn.microsoft.com/en-us/dotnet/api/{0}" -f $Type.FullName
+        }
         function Split-Link {
             param (
                 [string]$Text
@@ -163,6 +169,9 @@ function New-CmdletDocumentation {
                     $param.type.name
                 }
                 $OutArray += $tablePattern -f "Type", $TypeName
+                if ($param.aliases -ne 'None'){
+                    $OutArray += $tablePattern -f "Aliases", $param.aliases
+                }
                 $OutArray += $tablePattern -f "Position", (Get-Culture).TextInfo.ToTitleCase($param.position)
                 $DefaultValue = if ($param.type.name -eq 'switch') {
                     $false
@@ -178,33 +187,52 @@ function New-CmdletDocumentation {
 
             #region Inputs
             $OutArray += "`n## Inputs"
-            $inputText = foreach ($inputType in ($Help.parameters.parameter.type.name | Select-Object -Unique | Sort-Object)){
-                "`n#### [**{0}**]()" -f $inputType
-                if ($LoremIpsum) {
-                    Get-LoremIpsum -Sentences 1
+            $helpInputTypes = $Help.inputTypes.inputType.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_) } 
+            $parameterInputTypes = $Help.parameters.parameter.type.name.TrimEnd('[]') | Select-Object -Unique | Sort-Object
+            $OutArray += if ($helpInputTypes -match 'None' -and $parameterInputTypes.Count -gt 0) {
+                foreach ($inputType in $parameterInputTypes){
+                    $ErrorActionPreference = 'Stop'
+                    try {
+                        [type]$type = $inputType
+                        "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
+                    }
+                    catch {
+                        "`n#### [**{0}**]()" -f $inputType
+                    }
+                    $ErrorActionPreference = 'Continue'
+                    if ($LoremIpsum) {
+                        Get-LoremIpsum -Sentences 1
+                    }
                 }
-            }
-            $OutArray += if ($inputText.Count -gt 0){
-                $inputText
             } else {
-                $OutArray += "`n#### **None**`n"
+                if ($helpInputTypes -match 'None'){
+                    "`n#### **None**`n"
+                } else {
+                    foreach ($helpInput in $helpInputTypes){
+                        [type]$type = $helpInput.Replace('[]', '')
+                        "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
+                        if ($LoremIpsum) {
+                            Get-LoremIpsum -Sentences 1
+                        }
+                    }
+                }
             }
             #endregion Inputs
 
             #region Outputs
             $OutArray += "`n## Outputs"
-            $returnValues = foreach ($returnValue in $Help.returnValues.returnValue){
-                "`n#### [**{0}**]()" -f $returnValue.type.name.Trim()
-                if ($returnValue.Description){
-                    $returnValue.Description
-                } elseif ($LoremIpsum){
-                    Get-LoremIpsum -Sentences 1
-                }
-            }
-            $OutArray += if ($returnValues.Count -eq 0){
+            $OutArray += if ($Help.returnValues.returnValue.type.name -eq 'None') {
                 "`n#### **None**"
             } else {
-                $returnValues
+                foreach ($returnValue in $Help.returnValues.returnValue){
+                    [type]$type = $returnValue.type.name.Trim().TrimEnd('[]')
+                    "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
+                    if ($returnValue.Description){
+                        $returnValue.Description
+                    } elseif ($LoremIpsum){
+                        Get-LoremIpsum -Sentences 1
+                    }
+                }
             }
             #endregion Outputs
 
