@@ -1,4 +1,4 @@
-function Get-CommandSyntax {
+function Get-Syntax {
     [CmdletBinding(
         DefaultParameterSetName = 'Name'
     )]
@@ -14,57 +14,62 @@ function Get-CommandSyntax {
             ValueFromPipeline = $true,
             Mandatory = $true
         )]
-        $Command
+        [Object]$Command
     )
-    function Get-ParameterString {
-        param (
-            [System.Management.Automation.CommandParameterInfo]$Parameter
-        )
-        $Name = $Parameter.Name
-        $Type = $Parameter.ParameterType.Name
-        if ($Type -match '`'){
-            $Type = $Type.Split('`')[0] + '[]'
-        }
-        $Position = $Parameter.Position
-        $Mandatory = $Parameter.IsMandatory
-        $NameMod = "-{0}" -f $Name
-        $TypeMod = "<{0}>" -f $Type
-        $Line = if ($Parameter.ParameterType -eq [System.Management.Automation.SwitchParameter]){
-            $NameMod
-        } else {
-            if ([double]$Position -ge 0){
-                $NameMod = "[{0}]" -f $NameMod
+    Begin {
+        function Get-ParameterString {
+            param (
+                [Parameter(
+                    Mandatory = $true,
+                    ValueFromPipeline = $true
+                )]
+                [PSCustomObject[]]$Parameter
+            )
+            Process {
+                foreach ($Param in $Parameter){
+                    $Name = $Param.Name
+                    $Type = $Param.Type.Name
+                    $Position = (Get-Culture).TextInfo.ToTitleCase($Param.Position)
+                    $Mandatory = [Convert]::ToBoolean($Param.Required)
+                    $NameMod = "-{0}" -f $Name
+                    $TypeMod = "<{0}>" -f $Type
+                    $Line = if ($Type -match 'SwitchParameter'){
+                        $NameMod
+                    } else {
+                        if ($Position -match 'Named'){
+                            $NameMod = "[{0}]" -f $NameMod
+                        }
+                        "{0} {1}" -f $NameMod, $TypeMod
+                    }
+                    $Line = if ($Mandatory){
+                        $Line
+                    } else {
+                        "[{0}]" -f $Line
+                    }
+                    $Line
+                }
             }
-            "{0} {1}" -f $NameMod, $TypeMod
         }
-        $Line = if ($Mandatory){
-            $Line
-        } else {
-            "[{0}]" -f $Line
+        function Get-ParameterSet {
+            param (
+                [Object]$Parameters
+            )
+            $ParametersOrdered = $Parameters | Where-Object Position -notmatch 'Named' | Sort-Object -Property Position
+            $ParametersNamed = $Parameters | Where-Object Position -match 'Named'
+            $ParamArray = @()
+            foreach ($Param in $ParametersOrdered){
+                $ParamArray += Get-ParameterString -Parameter $Param
+            }
+            foreach ($Param in $ParametersNamed){
+                $ParamArray += Get-ParameterString -Parameter $Param
+            }
+            return $ParamArray
         }
-        return $Line
+        if ($Command.GetType() -notin [System.Management.Automation.FunctionInfo],[System.Management.Automation.CmdletInfo]){
+            throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'Command'. Cannot convert the `"$($Command)`" value of type `"$($Command.GetType().FullName)`" to type `"System.Management.Automation.FunctionInfo`" or `"System.Management.Automation.CmdletInfo`"."
+        }
     }
-    if ($PSCmdlet.ParameterSetName -eq 'Name'){
-        try {
-            $Command = Get-Command -Name $CommandName -ErrorAction Stop
-        } catch [System.Management.Automation.CommandNotFoundException] {
-            throw $_
-            exit 1
-        }
-    }
-    $CommonParameters = @(
-        "Debug",
-        "ErrorAction",
-        "ErrorVariable",
-        "InformationAction",
-        "InformationVariable",
-        "OutVariable",
-        "OutBuffer",
-        "PipelineVariable",
-        "Verbose",
-        "WarningAction",
-        "WarningVariable"
-    )
+    switch ()
     $ParameterSets = foreach ($Set in $Command.ParameterSets){
         $ParameterSetName = if ($Set.Name -like "*AllParameterSets*"){
             'All'
