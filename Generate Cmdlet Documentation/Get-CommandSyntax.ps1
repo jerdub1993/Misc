@@ -64,7 +64,6 @@ function Get-Syntax {
             }
             return $ParamArray
         }
-        
     }
     Process {
         $Help = switch ($PSCmdlet.ParameterSetName){
@@ -79,12 +78,31 @@ function Get-Syntax {
                 Get-Help $Command
             }
         }
+        $Parameters = $Help.Parameters.Parameter
         switch ($Help.Category){
-            ExternalScript  {}
-            Cmdlet          {}
-            Function        {}
+            ExternalScript  {
+                [PSCustomObject]@{
+                    Name = All
+                    Parameters = Get-ParameterSet -Parameters $Parameters
+                }
+            }
+            Default         {
+                $Group = $Parameters | Group-Object -Property ParameterSetName
+                foreach ($set in $Group){
+                    $name = if ($set.Name -match '^\(All\)$'){
+                        'All'
+                    } else {
+                        $set.Name
+                    }
+                    [PSCustomObject]@{
+                        Name = $name
+                        Parameters = Get-ParameterSet -Parameters $set.Group
+                    }
+                }
+            }
         }
     }
+}
     
     $ParameterSets = foreach ($Set in $Command.ParameterSets){
         $ParameterSetName = if ($Set.Name -like "*AllParameterSets*"){
