@@ -244,10 +244,8 @@ function New-CmdletDocumentation {
             } else {
                 $linkText = if ($LoremIpsum){
                     Get-LoremIpsum -Words 2
-                } else {
-                    "Link 1"
+                    $OutArray += "- [{0}]()" -f $linkText
                 }
-                $OutArray += "- [{0}]()" -f $linkText
             }
             #endregion Related Links
 
