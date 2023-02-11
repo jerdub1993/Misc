@@ -45,6 +45,7 @@ function New-CmdletDocumentation {
                         exit 1
                     }
                 }
+                break
             }
             Name        {
                 try {
@@ -53,6 +54,7 @@ function New-CmdletDocumentation {
                     throw [System.Management.Automation.CommandNotFoundException] "Unable to find command '$Name'."
                     exit 1
                 }
+                break
             }
             Script      {
                 try {
@@ -61,6 +63,7 @@ function New-CmdletDocumentation {
                     throw [System.Management.Automation.ItemNotFoundException] "Cannot find path '$($PWD.Path)\$Script' because it does not exist."
                     exit 1
                 }
+                break
             }
         }
         $Required_Modules = @{
