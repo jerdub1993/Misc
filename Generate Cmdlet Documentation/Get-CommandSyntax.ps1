@@ -4,16 +4,10 @@ function Get-Syntax {
     )]
     param (
         [Parameter(
-            ParameterSetName = 'InputObject',
-            Mandatory = $true
-        )]
-        [string]$InputObject,
-        [Parameter(
-            ParameterSetName = 'Command',
             ValueFromPipeline = $true,
             Mandatory = $true
         )]
-        [Object]$Command
+        [Object]$InputObject
     )
     Begin {
         function Get-ParameterString {
@@ -66,17 +60,14 @@ function Get-Syntax {
         }
     }
     Process {
-        $Help = switch ($PSCmdlet.ParameterSetName){
-            InputObject {
-                Get-Help $InputObject
-            }
-            Command     {
-                if ($Command.GetType() -notin [System.Management.Automation.FunctionInfo],[System.Management.Automation.CmdletInfo]){
-                    throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'Command'. Cannot convert the `"$($Command)`" value of type `"$($Command.GetType().FullName)`" to type `"System.Management.Automation.FunctionInfo`" or `"System.Management.Automation.CmdletInfo`"."
-                    exit 1
-                }
-                Get-Help $Command
-            }
+        if ($Command){
+            $InputObject = $Command
+        }
+        try {
+            $Help = Get-Help $InputObject -ErrorAction Stop
+        } catch {
+            throw $_
+            exit 1
         }
         $Parameters = $Help.Parameters.Parameter
         $ParameterSets = switch ($Help.Category){

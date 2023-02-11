@@ -6,16 +6,6 @@ function New-CmdletDocumentation {
             ValueFromPipeline = $true
         )]    
         [Object[]]$InputObject,
-        [Parameter(
-            Mandatory = $true,
-            ParameterSetName = 'Name'
-        )]    
-        [string[]]$Name,
-        [Parameter(
-            Mandatory = $true,
-            ParameterSetName = 'Script'
-        )]    
-        [string[]]$Script,
         [switch]$LoremIpsum
     )
     Begin {
@@ -35,35 +25,6 @@ function New-CmdletDocumentation {
                     Label   = $Split[0].TrimEnd(':')
                     Uri     = $Split[1]
                 }
-            }
-        }
-        switch ($PSCmdlet.ParameterSetName){
-            InputObject {
-                foreach ($inObj in $InputObject){
-                    if ($inObj.GetType() -notin [System.Management.Automation.CmdletInfo],[System.Management.Automation.FunctionInfo]){
-                        throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'InputObject'. Cannot convert the `"$inObj`" value of type `"$($inObj.GetType().Name)`" to type `"CmdletInfo`" or `"FunctionInfo`"."
-                        exit 1
-                    }
-                }
-                break
-            }
-            Name        {
-                try {
-                    $InputObject = Get-Command -Name $Name
-                } catch {
-                    throw [System.Management.Automation.CommandNotFoundException] "Unable to find command '$Name'."
-                    exit 1
-                }
-                break
-            }
-            Script      {
-                try {
-                    $InputObject = (Get-Item -LiteralPath $Script).FullName
-                } catch {
-                    throw [System.Management.Automation.ItemNotFoundException] "Cannot find path '$($PWD.Path)\$Script' because it does not exist."
-                    exit 1
-                }
-                break
             }
         }
         $Required_Modules = @{
@@ -87,7 +48,12 @@ function New-CmdletDocumentation {
     }
     Process {
         foreach ($inObj in $InputObject){
-            $Help = Get-Help $inObj
+            try {
+                $Help = Get-Help $inObj -ErrorAction Stop
+            } catch {
+                throw $_
+                exit 1
+            }
             $OutArray = @()
 
             #region Cmdlet Name
@@ -105,7 +71,7 @@ function New-CmdletDocumentation {
             #region Syntax
             $OutArray += "`n## Syntax"
             $spaces = ' ' * 4
-            $Syntax = Get-Syntax -Command $inObj
+            $Syntax = Get-Syntax -InputObject $inObj
             foreach ($set in $Syntax.ParameterSets){
                 $OutArray += '```PowerShell'
                 $OutArray += $Help.Name
