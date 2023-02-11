@@ -82,7 +82,7 @@ function Get-Syntax {
         switch ($Help.Category){
             ExternalScript  {
                 [PSCustomObject]@{
-                    Name = All
+                    Name = 'All'
                     Parameters = Get-ParameterSet -Parameters $Parameters
                 }
             }
