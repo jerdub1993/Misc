@@ -79,7 +79,7 @@ function Get-Syntax {
             }
         }
         $Parameters = $Help.Parameters.Parameter
-        switch ($Help.Category){
+        $ParameterSets = switch ($Help.Category){
             ExternalScript  {
                 [PSCustomObject]@{
                     Name = 'All'
@@ -101,33 +101,10 @@ function Get-Syntax {
                 }
             }
         }
-    }
-}
-    
-    $ParameterSets = foreach ($Set in $Command.ParameterSets){
-        $ParameterSetName = if ($Set.Name -like "*AllParameterSets*"){
-            'All'
-        } else {
-            $Set.Name
+        return [PSCustomObject]@{
+            Command = $Help.Name
+            ParameterSets = $ParameterSets
         }
-        $ParametersRaw = $Set.Parameters | Where-Object Name -notin $CommonParameters
-        $Parameters_Position = $ParametersRaw | Where-Object { [double]$_.Position -ge 0 } | Sort-Object Position
-        $Parameters_NoPosition = $ParametersRaw | Where-Object { [double]$_.Position -lt 0 } | Sort-Object Position -Descending
-        $Parameters = @()
-        foreach ($Parameter in $Parameters_Position) {
-            $Parameters += Get-ParameterString -Parameter $Parameter
-        }
-        foreach ($Parameter in $Parameters_NoPosition) {
-            $Parameters += Get-ParameterString -Parameter $Parameter
-        }
-        [PSCustomObject]@{
-            Name = $ParameterSetName
-            Parameters = $Parameters
-        }
-    }
-    return [PSCustomObject]@{
-        Command = $Command
-        ParameterSets = $ParameterSets
     }
 }
 function Get-DisplaySyntax {
