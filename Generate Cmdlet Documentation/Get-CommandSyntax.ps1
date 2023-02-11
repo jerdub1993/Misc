@@ -1,14 +1,13 @@
 function Get-Syntax {
     [CmdletBinding(
-        DefaultParameterSetName = 'Name'
+        DefaultParameterSetName = 'InputObject'
     )]
     param (
         [Parameter(
-            ParameterSetName = 'Name',
-            ValueFromPipeline = $true,
+            ParameterSetName = 'InputObject',
             Mandatory = $true
         )]
-        [string]$CommandName,
+        [string]$InputObject,
         [Parameter(
             ParameterSetName = 'Command',
             ValueFromPipeline = $true,
@@ -65,11 +64,28 @@ function Get-Syntax {
             }
             return $ParamArray
         }
-        if ($Command.GetType() -notin [System.Management.Automation.FunctionInfo],[System.Management.Automation.CmdletInfo]){
-            throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'Command'. Cannot convert the `"$($Command)`" value of type `"$($Command.GetType().FullName)`" to type `"System.Management.Automation.FunctionInfo`" or `"System.Management.Automation.CmdletInfo`"."
+        
+    }
+    Process {
+        $Help = switch ($PSCmdlet.ParameterSetName){
+            InputObject {
+                Get-Help $InputObject
+            }
+            Command     {
+                if ($Command.GetType() -notin [System.Management.Automation.FunctionInfo],[System.Management.Automation.CmdletInfo]){
+                    throw [System.Management.Automation.ParameterBindingException] "Cannot process argument transformation on parameter 'Command'. Cannot convert the `"$($Command)`" value of type `"$($Command.GetType().FullName)`" to type `"System.Management.Automation.FunctionInfo`" or `"System.Management.Automation.CmdletInfo`"."
+                    exit 1
+                }
+                Get-Help $Command
+            }
+        }
+        switch ($Help.Category){
+            ExternalScript  {}
+            Cmdlet          {}
+            Function        {}
         }
     }
-    switch ()
+    
     $ParameterSets = foreach ($Set in $Command.ParameterSets){
         $ParameterSetName = if ($Set.Name -like "*AllParameterSets*"){
             'All'
