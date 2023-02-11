@@ -2,7 +2,6 @@ function New-CmdletDocumentation {
     param (
         [Parameter(
             Mandatory = $true,
-            ParameterSetName = 'InputObject',
             ValueFromPipeline = $true
         )]    
         [Object[]]$InputObject,
