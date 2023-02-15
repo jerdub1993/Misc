@@ -5,7 +5,13 @@ function New-CmdletDocumentation {
             ValueFromPipeline = $true
         )]    
         [Object[]]$InputObject,
-        [switch]$LoremIpsum
+        [switch]$LoremIpsum,
+        [ValidateSet(
+            1,
+            2,
+            3
+        )]
+        [int]$HeadingLevel = 1
     )
     Begin {
         function Get-TypeUri {
@@ -26,6 +32,7 @@ function New-CmdletDocumentation {
                 }
             }
         }
+        $hashChars = '#' * ($HeadingLevel - 1)
         $Required_Modules = @{
             'Get-LoremIpsum.ps1' = @(
                 'Get-LoremIpsum'
@@ -56,7 +63,7 @@ function New-CmdletDocumentation {
             $OutArray = @()
 
             #region Cmdlet Name
-            $OutArray += "# {0}`n" -f $Help.Name
+            $OutArray += "{0}# {1}`n" -f $hashChars, $Help.Name
             #endregion Cmdlet Name
 
             #region Synopsis
@@ -68,7 +75,7 @@ function New-CmdletDocumentation {
             #endregion Synopsis
 
             #region Syntax
-            $OutArray += "`n## Syntax"
+            $OutArray += "`n{0}## Syntax" -f $hashChars
             $spaces = ' ' * 4
             $Syntax = Get-Syntax -InputObject $inObj
             foreach ($set in $Syntax.ParameterSets){
@@ -82,7 +89,7 @@ function New-CmdletDocumentation {
             #endregion Syntax
 
             #region Description
-            $OutArray += "`n## Description"
+            $OutArray += "`n{0}## Description" -f $hashChars
             $OutArray += if ($Help.description){
                 $Help.description.text
             } elseif ($LoremIpsum){
@@ -91,10 +98,10 @@ function New-CmdletDocumentation {
             #endregion Description
 
             #region Examples
-            $OutArray += "`n## Examples"
+            $OutArray += "`n{0}## Examples" -f $hashChars
             $exCount = 1
             foreach ($example in $Help.examples.example){
-                $OutArray += "`n### Example {0}" -f $exCount
+                $OutArray += "`n{0}### Example {1}" -f $hashChars, $exCount
                 $OutArray += '```PowerShell'
                 foreach ($line in ($example.code -split "`n")){
                     $OutArray += $line
@@ -112,7 +119,7 @@ function New-CmdletDocumentation {
             #endregion Examples
 
             #region Parameters
-            $OutArray += "`n## Parameters"
+            $OutArray += "`n{0}## Parameters" -f $hashChars
             $htmlSpaces = '&ensp;' * 4
             $tablePattern = "| {0} | {1} |"
             foreach ($param in $Help.Parameters.parameter){
@@ -156,10 +163,10 @@ function New-CmdletDocumentation {
                     $ErrorActionPreference = 'Stop'
                     try {
                         [type]$type = $inputType
-                        "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
+                        "`n{0}#### [**{1}**]({2})" -f  $hashChars, $type.name, (Get-TypeUri -Type $type)
                     }
                     catch {
-                        "`n#### [**{0}**]()" -f $inputType
+                        "`n{0}#### [**{1}**]()" -f $hashChars, $inputType
                     }
                     $ErrorActionPreference = 'Continue'
                     if ($LoremIpsum) {
@@ -168,11 +175,11 @@ function New-CmdletDocumentation {
                 }
             } else {
                 if ([string]::IsNullOrEmpty($helpInputTypes) -or $helpInputTypes -match 'None'){
-                    "`n#### **None**`n"
+                    "`n{0}#### **None**`n" -f $hashChars
                 } else {
                     foreach ($helpInput in $helpInputTypes){
                         [type]$type = $helpInput.Replace('[]', '')
-                        "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
+                        "`n{0}#### [**{1}**]({2})" -f $hashChars, $type.name, (Get-TypeUri -Type $type)
                         if ($LoremIpsum) {
                             Get-LoremIpsum -Sentences 1
                         }
@@ -182,13 +189,13 @@ function New-CmdletDocumentation {
             #endregion Inputs
 
             #region Outputs
-            $OutArray += "`n## Outputs"
+            $OutArray += "`n{0}## Outputs" -f $hashChars
             $OutArray += if ([string]::IsNullOrEmpty($Help.returnValues) -or $Help.returnValues.returnValue.type.name -match 'None') {
-                "`n#### **None**"
+                "`n{0}#### **None**" -f $hashChars
             } else {
                 foreach ($returnValue in ($Help.returnValues.returnValue.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_.Trim()) } | Sort-Object)){
                     [type]$type = $returnValue.Trim().TrimEnd('[]')
-                    "`n#### [**{0}**]({1})" -f $type.name, (Get-TypeUri -Type $type)
+                    "`n{0}#### [**{1}**]({2})" -f  $hashChars, $type.name, (Get-TypeUri -Type $type)
                     if ($LoremIpsum){
                         Get-LoremIpsum -Sentences 1
                     }
@@ -197,7 +204,7 @@ function New-CmdletDocumentation {
             #endregion Outputs
 
             #region Notes
-            $OutArray += "`n## Notes"
+            $OutArray += "`n{0}## Notes" -f $hashChars
             $aliasList = Get-Alias -Definition $Help.Name -ErrorAction SilentlyContinue
             $OutArray += if ($aliasList) {
                 'PowerShell includes the following aliases for `{0}`:' -f $Help.Name
@@ -210,7 +217,7 @@ function New-CmdletDocumentation {
             #endregion Notes
 
             #region Related Links
-            $OutArray += "`n## Related Links"
+            $OutArray += "`n{0}## Related Links" -f $hashChars
             $LinkPattern = '- [{0}]({1})'
             $Links = $help.relatedLinks.navigationLink
             if ($Links){
