@@ -123,7 +123,7 @@ function New-CmdletDocumentation {
             $htmlSpaces = '&ensp;' * 4
             $tablePattern = "| {0} | {1} |"
             foreach ($param in $Help.Parameters.parameter){
-                $OutArray += "`n#### **`-{0}`**" -f $param.name
+                $OutArray += "`n{0}#### **`-{1}`**" -f $hashChars, $param.name
                 $OutArray += if ($param.Description){
                     "{0}{1}" -f $htmlSpaces, $param.Description.Text
                 } elseif ($LoremIpsum) {
@@ -155,7 +155,7 @@ function New-CmdletDocumentation {
             #endregion Parameters
 
             #region Inputs
-            $OutArray += "`n## Inputs"
+            $OutArray += "`n{0}## Inputs" -f $hashChars
             $helpInputTypes = $Help.inputTypes.inputType.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_) } | Sort-Object
             $parameterInputTypes = $Help.parameters.parameter.type.name.TrimEnd('[]') | Select-Object -Unique | Sort-Object
             $OutArray += if (([string]::IsNullOrEmpty($helpInputTypes) -or $helpInputTypes -match 'None') -and $parameterInputTypes.Count -gt 0) {
