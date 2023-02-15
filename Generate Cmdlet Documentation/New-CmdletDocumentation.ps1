@@ -84,7 +84,7 @@ function New-CmdletDocumentation {
             #region Description
             $OutArray += "`n## Description"
             $OutArray += if ($Help.description){
-                $Help.description
+                $Help.description.text
             } elseif ($LoremIpsum){
                 Get-LoremIpsum -Paragraphs 2
             }
