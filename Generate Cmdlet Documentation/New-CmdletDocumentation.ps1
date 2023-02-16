@@ -12,6 +12,8 @@ function New-CmdletDocumentation {
         A switch parameter; if true, will populate any empty/blank sections with filler-text.
     .PARAMETER HeadingLevel
         Specifies the heading level (H1, H2, etc.) at which to start. Default is 1 (H1).
+    .OUTPUTS
+        String[]
     .NOTES
         Information or caveats about the function e.g. 'This function is not supported in Linux'
     .LINK
