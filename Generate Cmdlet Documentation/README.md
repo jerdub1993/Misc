@@ -1,5 +1,5 @@
 # CmdletDocumentation
-For automating making Cmdlet Documentation from PowerShell's [comment-based help](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help). The better the comment-based help on the command/function/script, the better the documentation. Use the `-LoremIpsum` parameter of `New-CmdletDocumentation` to populate the documentation with random filler text.
+For automating making Cmdlet Documentation from PowerShell's [comment-based help](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help). The better the comment-based help on the command/function/script, the better the documentation. Use the `-LoremIpsum` parameter to populate the documentation with random filler text.
 
 Output can be returned in [Markdown language](https://www.markdownguide.org/cheat-sheet/) or in [Confluence Wiki](https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html) format.
 
