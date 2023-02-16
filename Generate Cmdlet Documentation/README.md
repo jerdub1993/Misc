@@ -107,6 +107,36 @@ This command generates the documentation in Markdown language, with headings sta
 ##### [**String**](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
 ### Notes
+Related Links: Unless otherwise specified, PowerShell assumes the first `.LINK` in the comment-based help is the help URI for the item, so `New-CmdletDocumentation` adds it to the 'Related Links' section as a hyperlink with the function/command/script name as the label. Example:
+
+Help text:
+
+    function Some-Function {
+        <#
+        `.LINK
+        https://google.com/
+    ...
+Results:
+
+    Markdown
+        [Some-Function](https://google.com/)
+    Confluence Wiki
+        [Some-Function|https://google.com/]
+
+For all remaining links, if they are formatted as "[Label]: [URL]", `New-CmdletDocumentation` will create a hyperlink. Example:
+
+Help text:
+
+    `.LINK
+    More help: https://google.com/
+Results:
+
+    Markdown
+        [More help](https://google.com/)
+    Confluence Wiki
+        [More help|https://google.com/]
+
+Otherwise, the `.LINK` text will be added to Related Links without formatting or modification.
 
 ### Related Links
 - [New-CmdletDocumentation](https://github.com/jerdub1993/Misc/tree/main/Generate%20Cmdlet%20Documentation)

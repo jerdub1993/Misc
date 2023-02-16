@@ -14,31 +14,6 @@ function New-CmdletDocumentation {
         Specifies the heading level (H1, H2, etc.) at which to start. Default is 1 (H1); options are 1, 2, or 3.
     .OUTPUTS
         String[]
-    .NOTES
-        Related Links: Unless otherwise specified, PowerShell assumes the first '.LINK' in the comment-based help is the help URI for the item, so New-CmdletDocumentation adds it to the 'Related Links' section as a hyperlink with the function/command/script name as the label. Example:
-        
-        Function name: Some-Function
-        Link text:
-            `.LINK
-            https://google.com/
-        Results:
-            Markdown
-                [Some-Function](https://google.com/)
-            Confluence Wiki
-                [Some-Function|https://google.com/]
-
-        For all remaining links, if they are formatted as "<Label>: <URL>", New-CmdletDocumentation will create a hyperlink. Example:
-
-        Link text:
-            `.LINK
-            More help: https://google.com/
-        Results:
-            Markdown
-                [More help](https://google.com/)
-            Confluence Wiki
-                [More help|https://google.com/]
-
-        Otherwise, the '.LINK' text will be added to Related Links without formatting or modification.
     .LINK
         https://github.com/jerdub1993/Misc/tree/main/Generate%20Cmdlet%20Documentation
     .LINK
@@ -59,6 +34,37 @@ function New-CmdletDocumentation {
     .EXAMPLE
         Get-Command MyFunction | New-CmdletDocumentation -OutputType Markdown -HeadingLevel 2 | Out-File MyFunction.md
         This command generates the documentation in Markdown language, with headings starting at H2, for the MyFunction function and outputs to the MyFunction.md file.
+    .NOTES
+        Related Links: Unless otherwise specified, PowerShell assumes the first `.LINK` in the comment-based help is the help URI for the item, so `New-CmdletDocumentation` adds it to the 'Related Links' section as a hyperlink with the function/command/script name as the label. Example:
+        
+        Help text:
+
+            function Some-Function {
+                <#
+                `.LINK
+                https://google.com/
+            ...
+        Results:
+
+            Markdown
+                [Some-Function](https://google.com/)
+            Confluence Wiki
+                [Some-Function|https://google.com/]
+
+        For all remaining links, if they are formatted as "[Label]: [URL]", `New-CmdletDocumentation` will create a hyperlink. Example:
+
+        Help text:
+
+            `.LINK
+            More help: https://google.com/
+        Results:
+
+            Markdown
+                [More help](https://google.com/)
+            Confluence Wiki
+                [More help|https://google.com/]
+
+        Otherwise, the `.LINK` text will be added to Related Links without formatting or modification.
     #>
     param (
         [Parameter(
@@ -444,6 +450,9 @@ function New-CmdletDocumentation {
                 foreach ($alias in $aliasList){
                     '- `{0}`' -f $alias.Name
                 }
+            }
+            $OutArray += if ($Help.alertSet.alert){
+                $Help.alertSet.alert.text
             } elseif ($LoremIpsum){
                 Get-LoremIpsum -Paragraphs 3
             }
@@ -652,6 +661,9 @@ function New-CmdletDocumentation {
                 foreach ($alias in $aliasList){
                     '* {0}' -f "{{$($alias.Name)}}"
                 }
+            }
+            $OutArray += if ($Help.alertSet.alert){
+                $Help.alertSet.alert.text
             } elseif ($LoremIpsum){
                 Get-LoremIpsum -Paragraphs 3
             }
