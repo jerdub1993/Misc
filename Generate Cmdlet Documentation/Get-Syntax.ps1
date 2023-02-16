@@ -66,27 +66,16 @@ function Get-Syntax {
             throw $_
             exit 1
         }
-        $Parameters = $Help.Parameters.Parameter
-        $ParameterSets = switch ($Help.Category){
-            ExternalScript  {
-                [PSCustomObject]@{
-                    Name = 'All'
-                    Parameters = Get-ParameterSet -Parameters $Parameters
-                }
+        $SyntaxItems = $Help.syntax.syntaxItem
+        $ParameterSets = foreach ($set in $SyntaxItems){
+            $name = if ($set.Name -match '^\(All\)$'){
+                'All'
+            } else {
+                $set.Name
             }
-            Default         {
-                $Group = $Parameters | Group-Object -Property ParameterSetName
-                foreach ($set in $Group){
-                    $name = if ($set.Name -match '^\(All\)$'){
-                        'All'
-                    } else {
-                        $set.Name
-                    }
-                    [PSCustomObject]@{
-                        Name = $name
-                        Parameters = Get-ParameterSet -Parameters $set.Group
-                    }
-                }
+            [PSCustomObject]@{
+                Name = $name
+                Parameters = Get-ParameterSet -Parameters $set.Parameter
             }
         }
         return [PSCustomObject]@{

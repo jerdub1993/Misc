@@ -1,10 +1,28 @@
 function New-CmdletDocumentation {
+    <#
+        .LINK
+            https://github.com/jerdub1993/Misc/tree/main/Generate%20Cmdlet%20Documentation
+        .LINK
+            Confluence Wiki syntax: https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html
+        .LINK
+            Markdown syntax: https://www.markdownguide.org/cheat-sheet/
+        .LINK
+            PowerShell Comment-Based Help: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help
+    #>
     param (
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true
         )]    
         [Object[]]$InputObject,
+        [Parameter(
+            Mandatory = $true
+        )]
+        [ValidateSet(
+            'Markdown',
+            'ConfluenceWiki'
+        )]
+        [string]$OutputType,
         [switch]$LoremIpsum,
         [ValidateSet(
             1,
