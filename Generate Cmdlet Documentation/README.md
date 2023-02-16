@@ -5,7 +5,7 @@ Output can be returned in [Markdown language](https://www.markdownguide.org/chea
 
 Everything below was drafted using the following command:
 
-    Get-Command -Name New-CmdletDocumentation | New-CmdletDocumentation -OutputType Markdown -HeadingLevel 2 | Out-File -FilePath $Path
+    Get-Command -Name New-CmdletDocumentation | New-CmdletDocumentation -OutputType Markdown -HeadingLevel 2 | Out-File -FilePath README.md
 
 ## New-CmdletDocumentation
 Automatically generates documentation for a command, function, or script.
