@@ -60,9 +60,6 @@ function Get-Syntax {
         }
     }
     Process {
-        if ($Command){
-            $InputObject = $Command
-        }
         try {
             $Help = Get-Help $InputObject -ErrorAction Stop
         } catch {
