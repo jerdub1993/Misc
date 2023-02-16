@@ -85,7 +85,7 @@ This command generates the documentation in Markdown language, with headings sta
 | AcceptPipelineInput | False |
 
 #### **-HeadingLevel**
-&ensp;&ensp;&ensp;&ensp;Specifies the heading level (H1, H2, etc.) at which to start. Default is 1 (H1).
+&ensp;&ensp;&ensp;&ensp;Specifies the heading level (H1, H2, etc.) at which to start. Default is 1 (H1); options are 1, 2, or 3.
 
 | Attribute | Value |
 | --- | --- |
