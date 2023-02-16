@@ -1,171 +1,115 @@
 # CmdletDocumentation
-For automating making Cmdlet Documentation in Markdown from PowerShell's [comment-based help](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help). The better the comment-based help on the command/function, the better the documentation. Use the `-LoremIpsum` parameter of `New-CmdletDocumentation` to populate the documentation with random filler text.
+For automating making Cmdlet Documentation from PowerShell's [comment-based help](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help). The better the comment-based help on the command/function/script, the better the documentation. Use the `-LoremIpsum` parameter of `New-CmdletDocumentation` to populate the documentation with random filler text.
+
+Output can be returned in [Markdown language](https://www.markdownguide.org/cheat-sheet/) or in [Confluence Wiki](https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html) format.
 
 Everything below was drafted using the following command:
 
-    Get-Command -Name New-CmdletDocumentation, Get-LoremIpsum, Get-CommandSyntax | New-CmdletDocumentation | Out-File -FilePath $Path
+    Get-Command -Name New-CmdletDocumentation | New-CmdletDocumentation -OutputType Markdown -HeadingLevel 2 | Out-File -FilePath $Path
 
-# New-CmdletDocumentation
+## New-CmdletDocumentation
+Automatically generates documentation for a command, function, or script.
 
+### Syntax
+```PowerShell
+New-CmdletDocumentation
+    -InputObject <Object[]>
+    -OutputType <String>
+    [-HeadingLevel <Int32>]
+    [-LoremIpsum]
+```
 
-## Syntax
+### Description
+New-CmdletDocumentation will generate the documentation for a command, function, or script from PowerShell's builtin comment-based help. It will return the documentation formatted in either Markdown language or Confluence Wiki.
 
-    New-CmdletDocumentation
-        [-LoremIpsum]
-        -InputObject <Object[]>
+### Examples
 
-    New-CmdletDocumentation
-        [-LoremIpsum]
-        -Name <String[]>
+#### Example 1
+```PowerShell
+Get-Command Get-Service | New-CmdletDocumentation -OutputType Markdown | Out-File Get-Service.md
+```
 
-## Description
+This command generates the documentation in Markdown language for the Get-Service command and outputs to the Get-Service.md file.
 
+#### Example 2
+```PowerShell
+New-CmdletDocumentation -InputObject MyScript.ps1 -OutputType ConfluenceWiki
+```
 
-## Examples
+This command generates the documentation in Confluence Wiki format for the MyScript.ps1 script.
 
-## Parameters
+#### Example 3
+```PowerShell
+New-CmdletDocumentation -InputObject Get-Help -OutputType ConfluenceWiki -LoremIpsum
+```
+
+This command generates the documentation in Confluence Wiki format for the Get-Help command, and adds filler text (LoremIpsum).
+
+#### Example 4
+```PowerShell
+Get-Command MyFunction | New-CmdletDocumentation -OutputType Markdown -HeadingLevel 2 | Out-File MyFunction.md
+```
+
+This command generates the documentation in Markdown language, with headings starting at H2, for the MyFunction function and outputs to the MyFunction.md file.
+
+### Parameters
 
 #### **-InputObject**
-
+&ensp;&ensp;&ensp;&ensp;The InputObject parameter can take a function, command, or script--essentially anything that can be passed to the Get-Help command.
 
 | Attribute | Value |
 | --- | --- |
 | Type | Object[] |
-| Position | Named |
+| Position | 1 |
+| Default value | None |
 | AcceptPipelineInput | True |
+
+#### **-OutputType**
+&ensp;&ensp;&ensp;&ensp;The type of output desired. Options are 'Markdown' or 'ConfluenceWiki'.
+
+| Attribute | Value |
+| --- | --- |
+| Type | String |
+| Position | 2 |
+| Default value | None |
+| AcceptPipelineInput | False |
+
 #### **-LoremIpsum**
-
+&ensp;&ensp;&ensp;&ensp;A switch parameter; if true, will populate any empty/blank sections with filler-text.
 
 | Attribute | Value |
 | --- | --- |
-| Type | switch |
+| Type | SwitchParameter |
 | Position | Named |
+| Default value | False |
 | AcceptPipelineInput | False |
-#### **-Name**
 
+#### **-HeadingLevel**
+&ensp;&ensp;&ensp;&ensp;Specifies the heading level (H1, H2, etc.) at which to start. Default is 1 (H1).
 
 | Attribute | Value |
 | --- | --- |
-| Type | string[] |
-| Position | Named |
+| Type | Int32 |
+| Position | 3 |
+| Default value | 1 |
 | AcceptPipelineInput | False |
-## Inputs
 
-#### [**System.Object[]**]()
+### Inputs
 
-## Outputs
-#### [**System.Object**]()
+##### [**Int32**](https://learn.microsoft.com/en-us/dotnet/api/System.Int32)
 
-## Notes
+##### [**Object**](https://learn.microsoft.com/en-us/dotnet/api/System.Object)
 
+##### [**String**](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
-## Related Links
+### Outputs
 
-- [Link 1]()
-# Get-LoremIpsum
+##### **None**
 
+### Notes
 
-## Syntax
-
-    Get-LoremIpsum
-        [-Paragraphs <Int32>]
-
-    Get-LoremIpsum
-        [-Sentences <Int32>]
-
-    Get-LoremIpsum
-        [-Words <Int32>]
-
-## Description
-
-
-## Examples
-
-## Parameters
-
-#### **-Paragraphs**
-
-
-| Attribute | Value |
-| --- | --- |
-| Type | int |
-| Position | Named |
-| AcceptPipelineInput | False |
-#### **-Sentences**
-
-
-| Attribute | Value |
-| --- | --- |
-| Type | int |
-| Position | Named |
-| AcceptPipelineInput | False |
-#### **-Words**
-
-
-| Attribute | Value |
-| --- | --- |
-| Type | int |
-| Position | Named |
-| AcceptPipelineInput | False |
-## Inputs
-
-#### [**None**]()
-
-## Outputs
-#### [**System.Object**]()
-
-## Notes
-
-
-## Related Links
-
-- [Link 1]()
-# Get-CommandSyntax
-
-
-## Syntax
-
-    Get-CommandSyntax
-        -CommandName <String>
-
-    Get-CommandSyntax
-        -Command <Object>
-
-## Description
-
-
-## Examples
-
-## Parameters
-
-#### **-Command**
-
-
-| Attribute | Value |
-| --- | --- |
-| Type | Object |
-| Position | Named |
-| AcceptPipelineInput | True |
-#### **-CommandName**
-
-
-| Attribute | Value |
-| --- | --- |
-| Type | string |
-| Position | Named |
-| AcceptPipelineInput | True |
-## Inputs
-
-#### [**System.String**]()
-
-#### [**System.Object**]()
-
-## Outputs
-#### [**System.Object**]()
-
-## Notes
-
-
-## Related Links
-
-- [Link 1]()
+### Related Links
+- [New-CmdletDocumentation](https://github.com/jerdub1993/Misc/tree/main/Generate%20Cmdlet%20Documentation)
+- [Confluence Wiki syntax](https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html)
+- [Markdown syntax](https://www.markdownguide.org/cheat-sheet/)
+- [PowerShell Comment-Based Help](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help)

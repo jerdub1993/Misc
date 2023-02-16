@@ -1,13 +1,39 @@
 function New-CmdletDocumentation {
     <#
-        .LINK
-            https://github.com/jerdub1993/Misc/tree/main/Generate%20Cmdlet%20Documentation
-        .LINK
-            Confluence Wiki syntax: https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html
-        .LINK
-            Markdown syntax: https://www.markdownguide.org/cheat-sheet/
-        .LINK
-            PowerShell Comment-Based Help: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help
+    .SYNOPSIS
+        Automatically generates documentation for a command, function, or script.
+    .DESCRIPTION
+        New-CmdletDocumentation will generate the documentation for a command, function, or script from PowerShell's builtin comment-based help. It will return the documentation formatted in either Markdown language or Confluence Wiki.
+    .PARAMETER InputObject
+        The InputObject parameter can take a function, command, or script--essentially anything that can be passed to the Get-Help command.
+    .PARAMETER OutputType
+        The type of output desired. Options are 'Markdown' or 'ConfluenceWiki'.
+    .PARAMETER LoremIpsum
+        A switch parameter; if true, will populate any empty/blank sections with filler-text.
+    .PARAMETER HeadingLevel
+        Specifies the heading level (H1, H2, etc.) at which to start. Default is 1 (H1).
+    .NOTES
+        Information or caveats about the function e.g. 'This function is not supported in Linux'
+    .LINK
+        https://github.com/jerdub1993/Misc/tree/main/Generate%20Cmdlet%20Documentation
+    .LINK
+        Confluence Wiki syntax: https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html
+    .LINK
+        Markdown syntax: https://www.markdownguide.org/cheat-sheet/
+    .LINK
+        PowerShell Comment-Based Help: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help
+    .EXAMPLE
+        Get-Command Get-Service | New-CmdletDocumentation -OutputType Markdown | Out-File Get-Service.md
+        This command generates the documentation in Markdown language for the Get-Service command and outputs to the Get-Service.md file.
+    .EXAMPLE
+        New-CmdletDocumentation -InputObject MyScript.ps1 -OutputType ConfluenceWiki
+        This command generates the documentation in Confluence Wiki format for the MyScript.ps1 script.
+    .EXAMPLE
+        New-CmdletDocumentation -InputObject Get-Help -OutputType ConfluenceWiki -LoremIpsum
+        This command generates the documentation in Confluence Wiki format for the Get-Help command, and adds filler text (LoremIpsum).
+    .EXAMPLE
+        Get-Command MyFunction | New-CmdletDocumentation -OutputType Markdown -HeadingLevel 2 | Out-File MyFunction.md
+        This command generates the documentation in Markdown language, with headings starting at H2, for the MyFunction function and outputs to the MyFunction.md file.
     #>
     param (
         [Parameter(
@@ -341,7 +367,7 @@ function New-CmdletDocumentation {
             $helpInputTypes = $Help.inputTypes.inputType.type.name -split "`n" | Where-Object { ![string]::IsNullOrEmpty($_) } | Sort-Object
             $parameterInputTypes = $Help.parameters.parameter.type.name.TrimEnd('[]') | Select-Object -Unique | Sort-Object
             $OutArray += if (([string]::IsNullOrEmpty($helpInputTypes) -or $helpInputTypes -match 'None') -and $parameterInputTypes.Count -gt 0) {
-                foreach ($inputType in $parameterInputTypes){
+                foreach ($inputType in ($parameterInputTypes | Where-Object { $_ -notmatch '^Switch(Parameter)?$' })){
                     $ErrorActionPreference = 'Stop'
                     try {
                         [type]$type = $inputType
