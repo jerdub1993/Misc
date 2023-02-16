@@ -63,7 +63,7 @@ function New-CmdletDocumentation {
             $OutArray = @()
 
             #region Cmdlet Name
-            $OutArray += "{0}# {1}`n" -f $hashChars, $Help.Name
+            $OutArray += "{0}# {1}" -f $hashChars, $Help.Name
             #endregion Cmdlet Name
 
             #region Synopsis
