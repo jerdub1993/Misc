@@ -104,7 +104,7 @@ This command generates the documentation in Markdown language, with headings sta
 
 ### Outputs
 
-##### **None**
+##### [**String**](https://learn.microsoft.com/en-us/dotnet/api/System.String)
 
 ### Notes
 
